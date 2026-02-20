@@ -1,3 +1,14 @@
+/*
+ * AnimatedroboEye Library
+ * Created by Shourov Paul, 2026.
+ * https://github.com/Shourov-Paul/AnimatedroboEye
+ *
+ * This library is licensed under the GPL-3.0 License.
+ *
+ * Provides an easy-to-use AnimatedEye class for drawing and animating
+ * expressive robot eyes on ST7735 TFT displays.
+ */
+
 #ifndef ANIMATED_EYE_H
 #define ANIMATED_EYE_H
 

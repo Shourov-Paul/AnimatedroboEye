@@ -1,6 +1,19 @@
-#include "src/AnimatedEye.h"
 #include <Adafruit_GFX.h>
 #include <Adafruit_ST7735.h>
+/*
+ * AnimatedroboEye - Example Sketch
+ *
+ * Created by Shourov Paul, 2026.
+ * https://github.com/Shourov-Paul/AnimatedroboEye
+ *
+ * This library is licensed under the GPL-3.0 License.
+ *
+ * This example demonstrates how to initialize the AnimatedEye library
+ * and randomly play through all available expressive animations
+ * (blink, happyShake, happyPop, angry, sad).
+ */
+
+#include <AnimatedEye.h>
 #include <SPI.h>
 
 // User defined pins
