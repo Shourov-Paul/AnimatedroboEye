@@ -13,7 +13,7 @@
  * (blink, happyShake, happyPop, angry, sad).
  */
 
-#include <AnimatedEye.h>
+#include <AnimatedroboEye.h>
 #include <SPI.h>
 
 // User defined pins
