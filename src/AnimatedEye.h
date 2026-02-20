@@ -5,7 +5,6 @@
 #include <Adafruit_ST7735.h>
 #include <Arduino.h>
 
-
 class AnimatedEye {
 public:
   // Constructor requires only the display pointer
@@ -22,6 +21,7 @@ public:
   // Animation routines
   void blink();
   void happyShake();
+  void happyPop();
 
 private:
   Adafruit_ST7735 *_tft;
@@ -37,7 +37,7 @@ private:
 
   // Drawing helpers
   void drawEyes(int offsetX, int offsetY, int w, int h, uint16_t color);
-  void drawHappyEyes(int offsetX, int offsetY, int w, int h, uint16_t color);
+  void drawStar(int x, int y, int radius, uint16_t color);
   void redraw();
 };
 

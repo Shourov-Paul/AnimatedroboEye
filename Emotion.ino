@@ -37,9 +37,11 @@ void loop() {
 
   // Randomly act
   int r = random(0, 100);
-  if (r < 50) {
+  if (r < 33) {
     robotEyes.blink();
-  } else {
+  } else if (r < 66) {
     robotEyes.happyShake();
+  } else {
+    robotEyes.happyPop();
   }
 }

@@ -58,27 +58,6 @@ void AnimatedEye::drawEyes(int offsetX, int offsetY, int w, int h,
   _tft->fillRoundRect(rightEyeX + offsetX, eyeY + offsetY, w, h, r, color);
 }
 
-// Helper to draw the "Happy" eyes
-// Both Eyes: Flat on Left, Round on Right
-void AnimatedEye::drawHappyEyes(int offsetX, int offsetY, int w, int h,
-                                uint16_t color) {
-  int leftEyeX = _cx - (_gap / 2) - w + offsetX;
-  int rightEyeX = _cx + (_gap / 2) + offsetX;
-  int eyeY = _cy - (h / 2) + offsetY;
-
-  int r = _radius;
-  if (h < 2 * r)
-    r = h / 2;
-
-  // LEFT EYE: Flat on Left, Round on Right
-  _tft->fillRoundRect(leftEyeX, eyeY, w, h, r, color);
-  _tft->fillRect(leftEyeX, eyeY, r, h, color);
-
-  // RIGHT EYE: Flat on Left, Round on Right
-  _tft->fillRoundRect(rightEyeX, eyeY, w, h, r, color);
-  _tft->fillRect(rightEyeX, eyeY, r, h, color);
-}
-
 // --- FLICKER-FREE BLINK ---
 void AnimatedEye::blink() {
   int closeStep = 6;
@@ -165,8 +144,8 @@ void AnimatedEye::happyShake() {
       _tft->fillRect(rxBase + nextX + _eyeW, yBase, -dx, _eyeH, _bgColor);
     }
 
-    // Draw New (using custom shape)
-    drawHappyEyes(nextX, 0, _eyeW, _eyeH, _eyeColor);
+    // Draw New (maintaining default configuration)
+    drawEyes(nextX, 0, _eyeW, _eyeH, _eyeColor);
 
     lastX = nextX;
     delay(_frameDelayMs);
@@ -181,8 +160,120 @@ void AnimatedEye::happyShake() {
 
   // Return to Center
   moveTo(0);
+}
 
-  // Restore Normal Eyes (Round-Round)
-  drawHappyEyes(0, 0, _eyeW, _eyeH, _bgColor); // Clear happy shape
-  drawEyes(0, 0, _eyeW, _eyeH, _eyeColor);     // Draw normal shape
+// --- STARBURST HELPER ---
+void AnimatedEye::drawStar(int x, int y, int radius, uint16_t color) {
+  if (radius <= 0)
+    return;
+  // A "flare" or "sparkle" is usually just a cross + a smaller diagonal cross
+  // Cross
+  _tft->drawLine(x - radius, y, x + radius, y, color);
+  _tft->drawLine(x, y - radius, x, y + radius, color);
+
+  // Diagonal (approximate for pixel grid, smaller than main cross)
+  int diag = (radius * 5) / 10; // ~0.5 * radius
+  if (diag > 0) {
+    _tft->drawLine(x - diag, y - diag, x + diag, y + diag, color);
+    _tft->drawLine(x - diag, y + diag, x + diag, y - diag, color);
+  }
+}
+
+// --- HAPPY POP ANIMATION ---
+void AnimatedEye::happyPop() {
+  int minDim = 4; // Smallest size before disappearing
+  int steps = 15; // More steps to shrink slower and smoother
+
+  // Phase 1: Shrink slowly and squish (happy emotional way)
+  for (int i = 1; i <= steps; i++) {
+    int curW = _eyeW - (i * (_eyeW - minDim) / steps);
+    int curH = _eyeH - (i * (_eyeH - minDim) / steps);
+
+    // Jump slightly upward for the happy emotion
+    int jumpY = -(i * 6 / steps);
+
+    // Clear area by redrawing background
+    _tft->fillScreen(_bgColor);
+    drawEyes(0, jumpY, curW, curH, _eyeColor);
+    delay(_frameDelayMs * 2); // Play it a bit slower
+  }
+
+  // Erase the tiny dots
+  _tft->fillScreen(_bgColor);
+  delay(_frameDelayMs * 4); // Anticipation pause
+
+  // Phase 2: Pop (Sprinkle multiple flares/stars)
+  int leftEyeCenterX = _cx - (_gap / 2) - (_eyeW / 2);
+  int rightEyeCenterX = _cx + (_gap / 2) + (_eyeW / 2);
+  int eyeCenterY = _cy - 6; // Match the jumpY elevation
+
+  uint16_t starColor = 0xFFE0;  // Yellow
+  uint16_t starColor2 = 0xFFFF; // White
+
+  // Define a local struct to keep track of moving sparkles
+  struct Sparkle {
+    float x, y;
+    float dx, dy;
+    int radius;
+    uint16_t color;
+  };
+
+  const int NUM_SPARKLES = 12; // 6 per eye
+  Sparkle sparkles[NUM_SPARKLES];
+
+  for (int i = 0; i < NUM_SPARKLES; i++) {
+    bool isLeftEye = (i < NUM_SPARKLES / 2);
+    int eyeCenterX = isLeftEye ? leftEyeCenterX : rightEyeCenterX;
+
+    // Start slightly randomized around the eye center
+    sparkles[i].x = eyeCenterX + random(-8, 8);
+    sparkles[i].y = eyeCenterY + random(-8, 8);
+
+    // Explode outward radially from center
+    float angle = random(0, 360) * PI / 180.0;
+    float speed = random(15, 35) / 10.0; // 1.5 to 3.5 pixels per frame
+    sparkles[i].dx = cos(angle) * speed;
+    sparkles[i].dy = sin(angle) * speed;
+
+    sparkles[i].radius = random(3, 8);
+    sparkles[i].color = (random(0, 2) == 0) ? starColor : starColor2;
+  }
+
+  // Animate the pop for ~1000ms
+  int frames = 1000 / _frameDelayMs;
+  for (int f = 0; f < frames; f++) {
+    // Erase old positions
+    for (int i = 0; i < NUM_SPARKLES; i++) {
+      if (sparkles[i].radius > 0) {
+        drawStar((int)sparkles[i].x, (int)sparkles[i].y, sparkles[i].radius,
+                 _bgColor);
+      }
+    }
+
+    // Move and draw new positions
+    for (int i = 0; i < NUM_SPARKLES; i++) {
+      sparkles[i].x += sparkles[i].dx;
+      sparkles[i].y += sparkles[i].dy;
+
+      // Calculate current radius (optionally shrink them as they fade)
+      int currentRadius = sparkles[i].radius;
+      if (f > frames * 2 /
+                  3) { // Start fading out in the last third of the animation
+        currentRadius -= (f - frames * 2 / 3) / 2;
+        if (currentRadius < 0)
+          currentRadius = 0;
+      }
+
+      if (currentRadius > 0) {
+        drawStar((int)sparkles[i].x, (int)sparkles[i].y, currentRadius,
+                 sparkles[i].color);
+      }
+    }
+    delay(_frameDelayMs);
+  }
+
+  // Phase 3: Restore
+  _tft->fillScreen(_bgColor);
+  delay(_frameDelayMs * 3);
+  redraw(); // Resets to original eyes
 }
