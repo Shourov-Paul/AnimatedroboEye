@@ -277,3 +277,205 @@ void AnimatedEye::happyPop() {
   delay(_frameDelayMs * 3);
   redraw(); // Resets to original eyes
 }
+
+// --- ANGRY ANIMATION ---
+void AnimatedEye::angry() {
+  int maxDrop = _eyeH * 3 / 4;
+
+  int leftX = _cx - (_gap / 2) - _eyeW;
+  int rightX = _cx + (_gap / 2);
+  int eyeY = _cy - (_eyeH / 2);
+
+  // 1. Get Angry (Quick, aggressive drop but still drawn step-by-step)
+  // We use a large step size so it's very fast, but delay is short
+  for (int drop = 0; drop <= maxDrop; drop += 4) {
+    // Left eye mask
+    _tft->fillTriangle(leftX - 2, eyeY - 2, leftX + _eyeW + 2, eyeY - 2,
+                       leftX + _eyeW + 2, eyeY + drop, _bgColor);
+    // Right eye mask
+    _tft->fillTriangle(rightX + _eyeW + 2, eyeY - 2, rightX - 2, eyeY - 2,
+                       rightX - 2, eyeY + drop, _bgColor);
+    delay(_frameDelayMs / 2); // Very fast movement
+  }
+
+  // 2. The Pulse (Getting much bigger and smaller while angrily holding)
+  int pulseCount = 4;     // Do it a few times rapidly
+  int pulseAmplitude = 8; // High amplitude for a very visible "bulging" effect
+
+  for (int p = 0; p < pulseCount; p++) {
+    // Pulse OUT (Bulge larger quickly)
+    for (int pd = 0; pd <= pulseAmplitude; pd += 2) {
+      // Clear outer edge to handle growing eyes
+      _tft->fillRect(leftX - pd - 4, eyeY - pd - 4, _eyeW + pd * 2 + 8,
+                     _eyeH + pd * 2 + 4, _bgColor);
+      _tft->fillRect(rightX - pd - 4, eyeY - pd - 4, _eyeW + pd * 2 + 8,
+                     _eyeH + pd * 2 + 4, _bgColor);
+
+      // Draw noticeably bigger eyes
+      drawEyes(0, 0, _eyeW + pd, _eyeH + pd, _eyeColor);
+
+      // Re-apply the angry mask (scaled down aggressively for the bigger eye)
+      int curLeftX = _cx - (_gap / 2) - (_eyeW + pd);
+      int curRightX = _cx + (_gap / 2);
+      int curEyeY = _cy - ((_eyeH + pd) / 2);
+
+      // Add pd to the drop so the angle remains sharp even as it grows
+      _tft->fillTriangle(curLeftX - 2, curEyeY - 2, curLeftX + (_eyeW + pd) + 2,
+                         curEyeY - 2, curLeftX + (_eyeW + pd) + 2,
+                         curEyeY + maxDrop + pd, _bgColor);
+      _tft->fillTriangle(curRightX + (_eyeW + pd) + 2, curEyeY - 2,
+                         curRightX - 2, curEyeY - 2, curRightX - 2,
+                         curEyeY + maxDrop + pd, _bgColor);
+
+      delay(_frameDelayMs / 2); // Fast pulsing
+    }
+
+    // Pulse IN (Shrink back)
+    for (int pd = pulseAmplitude; pd >= 0; pd -= 2) {
+      // Clear area to erase larger eyes before drawing smaller ones
+      _tft->fillRect(leftX - pulseAmplitude - 4, eyeY - pulseAmplitude - 4,
+                     _eyeW + pulseAmplitude * 2 + 8,
+                     _eyeH + pulseAmplitude * 2 + 4, _bgColor);
+      _tft->fillRect(rightX - pulseAmplitude - 4, eyeY - pulseAmplitude - 4,
+                     _eyeW + pulseAmplitude * 2 + 8,
+                     _eyeH + pulseAmplitude * 2 + 4, _bgColor);
+
+      drawEyes(0, 0, _eyeW + pd, _eyeH + pd, _eyeColor);
+
+      int curLeftX = _cx - (_gap / 2) - (_eyeW + pd);
+      int curRightX = _cx + (_gap / 2);
+      int curEyeY = _cy - ((_eyeH + pd) / 2);
+
+      _tft->fillTriangle(curLeftX - 2, curEyeY - 2, curLeftX + (_eyeW + pd) + 2,
+                         curEyeY - 2, curLeftX + (_eyeW + pd) + 2,
+                         curEyeY + maxDrop + pd, _bgColor);
+      _tft->fillTriangle(curRightX + (_eyeW + pd) + 2, curEyeY - 2,
+                         curRightX - 2, curEyeY - 2, curRightX - 2,
+                         curEyeY + maxDrop + pd, _bgColor);
+
+      delay(_frameDelayMs / 2);
+    }
+  }
+
+  // Hold briefly before recovering
+  delay(300);
+
+  // 3. Recover (Smoothly move brow back up)
+  // Ensure perfectly clean area first
+  _tft->fillScreen(_bgColor);
+
+  for (float drop = maxDrop; drop >= 0; drop -= 1.0) {
+    drawEyes(0, 0, _eyeW, _eyeH, _eyeColor);
+
+    int d = (int)drop;
+    if (d > 0) {
+      // Left eye sad mask
+      _tft->fillTriangle(leftX - 2, eyeY - 2, leftX + _eyeW + 2, eyeY - 2,
+                         leftX - 2, eyeY + d, _bgColor);
+      // Right eye sad mask
+      _tft->fillTriangle(rightX - 2, eyeY - 2, rightX + _eyeW + 2, eyeY - 2,
+                         rightX + _eyeW + 2, eyeY + d, _bgColor);
+    }
+
+    delay(_frameDelayMs);
+  }
+
+  redraw();
+}
+
+// --- SAD ANIMATION ---
+void AnimatedEye::sad() {
+  int maxDrop = _eyeH / 2 + 4;
+
+  int leftX = _cx - (_gap / 2) - _eyeW;
+  int rightX = _cx + (_gap / 2);
+  int eyeY = _cy - (_eyeH / 2);
+
+  // 1. Get Sad (Smoothly move the OUTER brow down to create puppy eyes)
+  for (float drop = 0; drop <= maxDrop; drop += 1.0) {
+    int d = (int)drop;
+    // Left eye sad mask (covers top outer corner)
+    _tft->fillTriangle(leftX - 2, eyeY - 2, leftX + _eyeW + 2, eyeY - 2,
+                       leftX - 2, eyeY + d, _bgColor);
+    // Right eye sad mask (covers top outer corner)
+    _tft->fillTriangle(rightX - 2, eyeY - 2, rightX + _eyeW + 2, eyeY - 2,
+                       rightX + _eyeW + 2, eyeY + d, _bgColor);
+    delay(_frameDelayMs);
+  }
+
+  delay(200);
+
+  // 2. The Tear Drop (Animate a tear falling from one eye)
+  // Let's drop a larger tear from the inner-bottom of the left eye
+  int tearX = _cx - (_gap / 2) - 10;
+  int tearYStart = _cy + (_eyeH / 2) - 4;
+  int tearYEnd = tearYStart + 25;
+  int tearRadius = 5;          // Made larger (was 3)
+  uint16_t tearColor = 0x07FF; // Cyan / Light Blue
+
+  for (int ty = tearYStart; ty <= tearYEnd;
+       ty += 1) { // Slower fall (step size 1 instead of 2)
+    // Erase previous tear position (avoid erasing the actual eye)
+    if (ty > tearYStart) {
+      _tft->fillCircle(tearX, ty - 1, tearRadius, _bgColor);
+    }
+    // Draw new tear position
+    _tft->fillCircle(tearX, ty, tearRadius, tearColor);
+
+    // Add a slight tremble to the eyes while crying to make it more emotional
+    if (ty % 6 == 0) { // Tremble slightly less often since it's falling slower
+      int trembleX = (ty % 12 == 0) ? -1 : 1;
+
+      // Clean edges
+      _tft->fillRect(leftX - 2, eyeY, 2, _eyeH, _bgColor);
+      _tft->fillRect(rightX + _eyeW, eyeY, 2, _eyeH, _bgColor);
+
+      drawEyes(trembleX, 0, _eyeW, _eyeH, _eyeColor);
+
+      // Re-apply sad masks
+      _tft->fillTriangle(leftX + trembleX - 2, eyeY - 2,
+                         leftX + trembleX + _eyeW + 2, eyeY - 2,
+                         leftX + trembleX - 2, eyeY + maxDrop, _bgColor);
+      _tft->fillTriangle(
+          rightX + trembleX - 2, eyeY - 2, rightX + trembleX + _eyeW + 2,
+          eyeY - 2, rightX + trembleX + _eyeW + 2, eyeY + maxDrop, _bgColor);
+    }
+
+    // Increase delay to make the fall slower
+    delay(_frameDelayMs + 15); // Added more delay here
+  }
+
+  // Plop (Splash the teardrop at the bottom)
+  _tft->fillCircle(tearX, tearYEnd, tearRadius, _bgColor); // Erase tear
+  _tft->drawLine(tearX - 6, tearYEnd + 2, tearX - 3, tearYEnd - 2,
+                 tearColor); // Wider splash for bigger tear
+  _tft->drawLine(tearX + 6, tearYEnd + 2, tearX + 3, tearYEnd - 2, tearColor);
+  delay(200);
+  _tft->drawLine(tearX - 6, tearYEnd + 2, tearX - 3, tearYEnd - 2, _bgColor);
+  _tft->drawLine(tearX + 6, tearYEnd + 2, tearX + 3, tearYEnd - 2, _bgColor);
+
+  // Hold sad expression a bit longer
+  delay(600);
+
+  // 3. Recover (Smoothly move brow back up)
+  // Ensure perfectly clean area first
+  _tft->fillScreen(_bgColor);
+
+  for (float drop = maxDrop; drop >= 0; drop -= 1.0) {
+    drawEyes(0, 0, _eyeW, _eyeH, _eyeColor);
+
+    int d = (int)drop;
+    if (d > 0) {
+      // Left eye sad mask
+      _tft->fillTriangle(leftX - 2, eyeY - 2, leftX + _eyeW + 2, eyeY - 2,
+                         leftX - 2, eyeY + d, _bgColor);
+      // Right eye sad mask
+      _tft->fillTriangle(rightX - 2, eyeY - 2, rightX + _eyeW + 2, eyeY - 2,
+                         rightX + _eyeW + 2, eyeY + d, _bgColor);
+    }
+
+    delay(_frameDelayMs);
+  }
+
+  redraw();
+}

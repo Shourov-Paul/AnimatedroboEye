@@ -37,11 +37,15 @@ void loop() {
 
   // Randomly act
   int r = random(0, 100);
-  if (r < 33) {
+  if (r < 20) {
     robotEyes.blink();
-  } else if (r < 66) {
+  } else if (r < 40) {
     robotEyes.happyShake();
-  } else {
+  } else if (r < 60) {
     robotEyes.happyPop();
+  } else if (r < 80) {
+    robotEyes.angry();
+  } else {
+    robotEyes.sad();
   }
 }

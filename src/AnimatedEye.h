@@ -22,6 +22,8 @@ public:
   void blink();
   void happyShake();
   void happyPop();
+  void angry();
+  void sad();
 
 private:
   Adafruit_ST7735 *_tft;
