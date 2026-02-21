@@ -5,7 +5,7 @@
  *
  * This library is licensed under the GPL-3.0 License.
  *
- * Provides an easy-to-use AnimatedEye class for drawing and animating
+ * Provides an easy-to-use AnimatedroboEye class for drawing and animating
  * expressive robot eyes on ST7735 TFT displays.
  */
 
@@ -16,10 +16,10 @@
 #include <Adafruit_ST7735.h>
 #include <Arduino.h>
 
-class AnimatedEye {
+class AnimatedroboEye {
 public:
   // Constructor requires only the display pointer
-  AnimatedEye(Adafruit_ST7735 *tft);
+  AnimatedroboEye(Adafruit_ST7735 *tft);
 
   // Initialize display settings, geometry, and draw initial eyes
   void begin(int screenWidth, int screenHeight, int maxFps);

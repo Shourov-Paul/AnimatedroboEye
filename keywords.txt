@@ -1,7 +1,7 @@
 #######################################
 # Datatypes (KEYWORD1)
 #######################################
-AnimatedEye	KEYWORD1
+AnimatedroboEye	KEYWORD1
 
 #######################################
 # Methods and Functions (KEYWORD2)

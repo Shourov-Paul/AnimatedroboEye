@@ -8,7 +8,7 @@
  *
  * This library is licensed under the GPL-3.0 License.
  *
- * This example demonstrates how to initialize the AnimatedEye library
+ * This example demonstrates how to initialize the AnimatedroboEye library
  * and execute only the blink() animation in a loop.
  */
 
@@ -23,9 +23,9 @@
 // Initialize TFT library
 Adafruit_ST7735 tft = Adafruit_ST7735(TFT_CS, TFT_DC, TFT_RST);
 
-// Create AnimatedEye object instance directly.
+// Create AnimatedroboEye object instance directly.
 // Constructor now only takes the TFT pointer.
-AnimatedEye robotEyes(&tft);
+AnimatedroboEye robotEyes(&tft);
 
 void setup() {
   Serial.begin(115200);

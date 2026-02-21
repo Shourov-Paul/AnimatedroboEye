@@ -5,14 +5,14 @@
  *
  * This library is licensed under the GPL-3.0 License.
  *
- * Provides an easy-to-use AnimatedEye class for drawing and animating
+ * Provides an easy-to-use AnimatedroboEye class for drawing and animating
  * expressive robot eyes on ST7735 TFT displays.
  */
 
-#include "AnimatedEye.h"
+#include "AnimatedroboEye.h"
 
 // Constructor
-AnimatedEye::AnimatedEye(Adafruit_ST7735 *tft) {
+AnimatedroboEye::AnimatedroboEye(Adafruit_ST7735 *tft) {
   _tft = tft;
   _cx = 80;
   _cy = 64;
@@ -26,7 +26,7 @@ AnimatedEye::AnimatedEye(Adafruit_ST7735 *tft) {
 }
 
 // Initialize the display geometry and draw initial eyes
-void AnimatedEye::begin(int screenWidth, int screenHeight, int maxFps) {
+void AnimatedroboEye::begin(int screenWidth, int screenHeight, int maxFps) {
   _cx = screenWidth / 2;
   _cy = screenHeight / 2;
   if (maxFps > 0) {
@@ -36,8 +36,8 @@ void AnimatedEye::begin(int screenWidth, int screenHeight, int maxFps) {
   redraw();
 }
 
-void AnimatedEye::setConfiguration(int eyeW, int eyeH, int radius,
-                                   uint16_t eyeColor, uint16_t bgColor) {
+void AnimatedroboEye::setConfiguration(int eyeW, int eyeH, int radius,
+                                       uint16_t eyeColor, uint16_t bgColor) {
   _eyeW = eyeW;
   _eyeH = eyeH;
   _radius = radius;
@@ -47,14 +47,14 @@ void AnimatedEye::setConfiguration(int eyeW, int eyeH, int radius,
 }
 
 // Draw/Redraw initial eyes and clear screen
-void AnimatedEye::redraw() {
+void AnimatedroboEye::redraw() {
   _tft->fillScreen(_bgColor);
   drawEyes(0, 0, _eyeW, _eyeH, _eyeColor);
 }
 
 // Global drawing helper - draws filled round rects
-void AnimatedEye::drawEyes(int offsetX, int offsetY, int w, int h,
-                           uint16_t color) {
+void AnimatedroboEye::drawEyes(int offsetX, int offsetY, int w, int h,
+                               uint16_t color) {
   int leftEyeX = _cx - (_gap / 2) - w;
   int rightEyeX = _cx + (_gap / 2);
   int eyeY = _cy - (h / 2);
@@ -70,7 +70,7 @@ void AnimatedEye::drawEyes(int offsetX, int offsetY, int w, int h,
 }
 
 // --- FLICKER-FREE BLINK ---
-void AnimatedEye::blink() {
+void AnimatedroboEye::blink() {
   int closeStep = 6;
   int openStep = 8;
   int minH = 2; // "Closed" height
@@ -124,7 +124,7 @@ void AnimatedEye::blink() {
 }
 
 // --- SMOOTH OSCILLATION SHAKE ---
-void AnimatedEye::happyShake() {
+void AnimatedroboEye::happyShake() {
   int lastX = 0;
 
   // Oscillation Parameters
@@ -174,7 +174,7 @@ void AnimatedEye::happyShake() {
 }
 
 // --- STARBURST HELPER ---
-void AnimatedEye::drawStar(int x, int y, int radius, uint16_t color) {
+void AnimatedroboEye::drawStar(int x, int y, int radius, uint16_t color) {
   if (radius <= 0)
     return;
   // A "flare" or "sparkle" is usually just a cross + a smaller diagonal cross
@@ -191,7 +191,7 @@ void AnimatedEye::drawStar(int x, int y, int radius, uint16_t color) {
 }
 
 // --- HAPPY POP ANIMATION ---
-void AnimatedEye::happyPop() {
+void AnimatedroboEye::happyPop() {
   int minDim = 4; // Smallest size before disappearing
   int steps = 15; // More steps to shrink slower and smoother
 
@@ -290,7 +290,7 @@ void AnimatedEye::happyPop() {
 }
 
 // --- ANGRY ANIMATION ---
-void AnimatedEye::angry() {
+void AnimatedroboEye::angry() {
   int maxDrop = _eyeH * 3 / 4;
 
   int leftX = _cx - (_gap / 2) - _eyeW;
@@ -395,7 +395,7 @@ void AnimatedEye::angry() {
 }
 
 // --- SAD ANIMATION ---
-void AnimatedEye::sad() {
+void AnimatedroboEye::sad() {
   int maxDrop = _eyeH / 2 + 4;
 
   int leftX = _cx - (_gap / 2) - _eyeW;

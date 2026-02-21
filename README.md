@@ -36,7 +36,7 @@ You can find a complete, ready-to-flash example inside the Arduino IDE under:
 ### Basic Setup Example
 
 ```cpp
-#include <AnimatedEye.h>
+#include <AnimatedroboEye.h>
 #include <Adafruit_GFX.h>
 #include <Adafruit_ST7735.h>
 #include <SPI.h>
@@ -49,8 +49,8 @@ You can find a complete, ready-to-flash example inside the Arduino IDE under:
 // Initialize TFT Display
 Adafruit_ST7735 tft = Adafruit_ST7735(TFT_CS, TFT_DC, TFT_RST);
 
-// Instantiate AnimatedEye, passing the pointer to your TFT driver
-AnimatedEye robotEyes(&tft);
+// Instantiate AnimatedroboEye, passing the pointer to your TFT driver
+AnimatedroboEye robotEyes(&tft);
 
 void setup() {
   tft.initR(INITR_BLACKTAB); // Adjust INITR type based on your ST7735 hardware
@@ -69,7 +69,7 @@ void loop() {
 
 ## API Reference
 
-### `AnimatedEye(Adafruit_ST7735 *tft)`
+### `AnimatedroboEye(Adafruit_ST7735 *tft)`
 Constructor. Requires a pointer to an initialized `Adafruit_ST7735` object.
 
 ### `void begin(int screenWidth, int screenHeight, int maxFps)`
