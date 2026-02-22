@@ -9,8 +9,8 @@
  * expressive robot eyes on ST7735 TFT displays.
  */
 
-#ifndef ANIMATED_EYE_H
-#define ANIMATED_EYE_H
+#ifndef ANIMATEDROBOEYE_H
+#define ANIMATEDROBOEYE_H
 
 #include <Adafruit_GFX.h>
 #include <Adafruit_ST7735.h>
@@ -54,4 +54,4 @@ private:
   void redraw();
 };
 
-#endif // ANIMATED_EYE_H
+#endif // ANIMATEDROBOEYE_H
